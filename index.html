@@ -98,6 +98,9 @@
         return /iPad|iPhone|iPod/.test(ua)
           || (ua.indexOf('Mac') !== -1 && 'ontouchend' in document);
       }
+      function android() {
+        return /android/i.test(navigator.userAgent || '');
+      }
 
       function showHelp() {
         helpText.innerHTML = ios()
@@ -117,7 +120,7 @@
 
       // API که کد فلاتر صدا می‌زند
       window.nbPwa = {
-        // آیا اصلاً پیشنهاد نصب معنا دارد؟ (فقط موبایل، و هنوز نصب نشده)
+        // آیا اصلاً پیشنهاد نصب معنا دارد؟ (فقط مرورگر موبایل و هنوز نصب نشده)
         canOffer: function () {
           try {
             var standalone = (window.matchMedia
@@ -128,14 +131,17 @@
             return !!coarse && !standalone;
           } catch (e) { return false; }
         },
-        // نصب: اگر پنجره‌ی خودکار مرورگر هست از آن استفاده کن، وگرنه راهنما نشان بده
-        install: function () {
-          if (deferred) {
-            deferred.prompt();
-            deferred.userChoice.then(function () { deferred = null; });
-          } else {
-            showHelp();
-          }
+        // 'ios' | 'android' | 'other'
+        platform: function () {
+          if (ios()) return 'ios';
+          if (android()) return 'android';
+          return 'other';
+        },
+        // آیفون: راهنمای افزودن به صفحه‌ی اصلی (چون ای‌پی‌کا فقط اندروید است)
+        showAddToHome: function () { showHelp(); },
+        // اندروید: دانلود فایل نصبی اپلیکیشن
+        downloadApk: function () {
+          window.location.href = 'https://nimbaz.ir/nimbaz.apk';
         }
       };
     })();
