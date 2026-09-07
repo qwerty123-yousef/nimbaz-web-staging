@@ -32,8 +32,157 @@
 
   <title>نیم‌باز</title>
   <link rel="manifest" href="manifest.json">
+
+  <style>
+    /* دکمه «نصب نیم‌باز روی گوشی» — فقط روی موبایل، فقط وقتی هنوز نصب نشده */
+    #nb-install {
+      position: fixed;
+      left: 50%;
+      bottom: 16px;
+      transform: translateX(-50%);
+      z-index: 2147483647;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      background: #2e7d32;
+      color: #fff;
+      font-family: Tahoma, sans-serif;
+      font-size: 14px;
+      font-weight: bold;
+      padding: 11px 16px;
+      border-radius: 26px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+      direction: rtl;
+      max-width: 92vw;
+    }
+    #nb-install .nb-main { cursor: pointer; white-space: nowrap; }
+    #nb-install .nb-close {
+      cursor: pointer;
+      opacity: 0.85;
+      font-size: 17px;
+      line-height: 1;
+      padding: 0 2px;
+    }
+    #nb-ios-help {
+      position: fixed;
+      inset: 0;
+      z-index: 2147483647;
+      display: none;
+      background: rgba(0,0,0,0.55);
+      align-items: flex-end;
+    }
+    #nb-ios-help .box {
+      background: #fff;
+      color: #1f2933;
+      width: 100%;
+      border-radius: 16px 16px 0 0;
+      padding: 20px 18px 26px;
+      font-family: Tahoma, sans-serif;
+      direction: rtl;
+      text-align: center;
+      line-height: 2;
+      font-size: 14px;
+    }
+    #nb-ios-help b { color: #2e7d32; }
+    #nb-ios-help button {
+      margin-top: 14px;
+      background: #eef2f6;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 20px;
+      font-family: Tahoma, sans-serif;
+      font-size: 14px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body dir="rtl">
+  <div id="nb-install">
+    <span class="nb-main">نصب نیم‌باز روی گوشی</span>
+    <span class="nb-close" aria-label="بستن">✕</span>
+  </div>
+
+  <div id="nb-ios-help">
+    <div class="box">
+      <span id="nb-help-text"></span>
+      <br>
+      <button type="button" id="nb-ios-close">باشه</button>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var btn = document.getElementById('nb-install');
+      var iosHelp = document.getElementById('nb-ios-help');
+      var helpText = document.getElementById('nb-help-text');
+      // فقط دستگاه لمسی (گوشی/تبلت). لپ‌تاپ و کامپیوتر → نمایش داده نمی‌شود.
+      var isCoarse = !!(window.matchMedia
+        && window.matchMedia('(pointer: coarse)').matches);
+      var isStandalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
+        || window.navigator.standalone === true;
+      var ua = navigator.userAgent || '';
+      var isIOS = /iPad|iPhone|iPod/.test(ua)
+        || (ua.indexOf('Mac') !== -1 && 'ontouchend' in document);
+      var deferredPrompt = null;
+      var dismissed = false;
+      try { dismissed = localStorage.getItem('nb_install_dismissed') === '1'; } catch (e) {}
+
+      var iosSteps = 'برای افزودن نیم‌باز به صفحه‌ی گوشی:'
+        + '<br>۱. دکمه‌ی <b>اشتراک‌گذاری</b> مرورگر را بزنید (مربع با فلش رو به بالا).'
+        + '<br>۲. گزینه‌ی <b>«Add to Home Screen»</b> را انتخاب کنید.'
+        + '<br>۳. روی <b>«Add»</b> بزنید.';
+      var androidSteps = 'برای افزودن نیم‌باز به صفحه‌ی گوشی:'
+        + '<br>۱. منوی <b>سه‌نقطه ⋮</b> مرورگر را باز کنید.'
+        + '<br>۲. گزینه‌ی <b>«افزودن به صفحه اصلی»</b> را بزنید.'
+        + '<br>۳. تایید کنید.';
+
+      function show() {
+        if (dismissed || isStandalone || !isCoarse) return;
+        btn.style.display = 'inline-flex';
+      }
+      function hide() { btn.style.display = 'none'; }
+
+      window.addEventListener('beforeinstallprompt', function (e) {
+        e.preventDefault();
+        deferredPrompt = e;
+        show();
+      });
+
+      window.addEventListener('appinstalled', function () {
+        hide();
+        deferredPrompt = null;
+      });
+
+      btn.querySelector('.nb-main').addEventListener('click', function () {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.then(function () {
+            deferredPrompt = null;
+            hide();
+          });
+        } else {
+          helpText.innerHTML = isIOS ? iosSteps : androidSteps;
+          iosHelp.style.display = 'flex';
+        }
+      });
+
+      btn.querySelector('.nb-close').addEventListener('click', function () {
+        hide();
+        try { localStorage.setItem('nb_install_dismissed', '1'); } catch (e) {}
+      });
+
+      document.getElementById('nb-ios-close').addEventListener('click', function () {
+        iosHelp.style.display = 'none';
+      });
+      iosHelp.addEventListener('click', function (e) {
+        if (e.target === iosHelp) iosHelp.style.display = 'none';
+      });
+
+      // روی موبایل کمی بعد از بارگذاری، دکمه را نشان بده (چه beforeinstallprompt بیاید چه نه)
+      setTimeout(show, 3000);
+    })();
+  </script>
+
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
