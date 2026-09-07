@@ -58,6 +58,15 @@
     }
     #nb-help h3 { margin: 0 0 8px; color: #6a1b9a; font-size: 16px; }
     #nb-help b { color: #6a1b9a; }
+    #nb-help .ic {
+      display: inline-flex;
+      vertical-align: middle;
+      width: 22px; height: 22px;
+      margin: 0 2px;
+      color: #0a84ff;
+    }
+    #nb-help ol { margin: 6px 0 0; padding-inline-start: 20px; }
+    #nb-help li { margin-bottom: 6px; }
     #nb-help button {
       margin-top: 16px;
       width: 100%;
@@ -102,10 +111,25 @@
         return /android/i.test(navigator.userAgent || '');
       }
 
+      var shareIcon = '<svg class="ic" viewBox="0 0 24 24" fill="none" '
+        + 'stroke="currentColor" stroke-width="2" stroke-linecap="round" '
+        + 'stroke-linejoin="round"><path d="M12 16V4"/><path d="M8 8l4-4 4 4"/>'
+        + '<path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7"/></svg>';
+      var addIcon = '<svg class="ic" viewBox="0 0 24 24" fill="none" '
+        + 'stroke="currentColor" stroke-width="2" stroke-linecap="round" '
+        + 'stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/>'
+        + '<path d="M12 8v8M8 12h8"/></svg>';
+
       function showHelp() {
         helpText.innerHTML = ios()
-          ? 'دکمه‌ی <b>اشتراک‌گذاری</b> مرورگر را بزنید (مربع با یک فلش رو به بالا — معمولاً پایین صفحه).'
-            + '<br>سپس در فهرست باز‌شده، گزینه‌ی <b>«Add to Home Screen»</b> را انتخاب و تایید کنید.'
+          ? '<ol>'
+            + '<li>پایینِ وسطِ صفحه، دکمه‌ی <b>«اشتراک‌گذاری»</b> را بزنید'
+            + ' (این علامت: ' + shareIcon + ' — مربع با یک فلش رو به بالا).</li>'
+            + '<li>در فهرستی که باز می‌شود، کمی پایین بروید و روی'
+            + ' <b>«Add to Home Screen»</b> بزنید (' + addIcon + ').</li>'
+            + '<li>صفحه‌ای باز می‌شود؛ بالا سمت راست روی <b>«Add»</b> بزنید.'
+            + ' آیکون نیم‌باز به صفحه‌ی گوشی‌تان اضافه می‌شود.</li>'
+            + '</ol>'
           : 'از منوی مرورگر خودتان (بالای صفحه) گزینه‌ی '
             + '<b>«افزودن به صفحه اصلی»</b> یا <b>«Install app»</b> را بزنید و تایید کنید.'
             + '<br>اگر این گزینه را نمی‌بینید، مرورگر <b>Chrome</b> این کار را ساده‌تر انجام می‌دهد.';
