@@ -120,6 +120,10 @@
         + 'stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/>'
         + '<path d="M12 8v8M8 12h8"/></svg>';
 
+      var dotsIcon = '<svg class="ic" viewBox="0 0 24 24" fill="currentColor">'
+        + '<circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/>'
+        + '<circle cx="12" cy="19" r="2"/></svg>';
+
       function showHelp() {
         helpText.innerHTML = ios()
           ? '<ol>'
@@ -130,9 +134,15 @@
             + '<li>صفحه‌ای باز می‌شود؛ بالا سمت راست روی <b>«Add»</b> بزنید.'
             + ' آیکون نیم‌باز به صفحه‌ی گوشی‌تان اضافه می‌شود.</li>'
             + '</ol>'
-          : 'از منوی مرورگر خودتان (بالای صفحه) گزینه‌ی '
-            + '<b>«افزودن به صفحه اصلی»</b> یا <b>«Install app»</b> را بزنید و تایید کنید.'
-            + '<br>اگر این گزینه را نمی‌بینید، مرورگر <b>Chrome</b> این کار را ساده‌تر انجام می‌دهد.';
+          : '<ol>'
+            + '<li>گوشه‌ی بالای صفحه، دکمه‌ی منوی مرورگر را بزنید'
+            + ' (معمولاً سه نقطه: ' + dotsIcon + ').</li>'
+            + '<li>گزینه‌ی <b>«افزودن به صفحه اصلی»</b> یا'
+            + ' <b>«Add to Home screen»</b> یا <b>«Install app»</b> را بزنید.</li>'
+            + '<li>تایید کنید. آیکون نیم‌باز به صفحه‌ی گوشی‌تان اضافه می‌شود.</li>'
+            + '</ol>'
+            + '<div style="margin-top:6px;font-size:12px;color:#52606d">اگر مرورگر خودش'
+            + ' پنجره‌ی «نصب» را نشان داد، فقط همان را بزنید.</div>';
         help.style.display = 'flex';
       }
       document.getElementById('nb-help-close').addEventListener('click', function () {
@@ -155,17 +165,15 @@
             return !!coarse && !standalone;
           } catch (e) { return false; }
         },
-        // 'ios' | 'android' | 'other'
-        platform: function () {
-          if (ios()) return 'ios';
-          if (android()) return 'android';
-          return 'other';
-        },
-        // آیفون: راهنمای افزودن به صفحه‌ی اصلی (چون ای‌پی‌کا فقط اندروید است)
-        showAddToHome: function () { showHelp(); },
-        // اندروید: دانلود فایل نصبی اپلیکیشن
-        downloadApk: function () {
-          window.location.href = 'https://nimbaz.ir/nimbaz.apk';
+        // نصب روی گوشی: اگر مرورگر پنجره‌ی خودکار داشت از آن استفاده کن،
+        // وگرنه راهنمای «افزودن به صفحه اصلی» (اندروید و آیفون) را نشان بده.
+        install: function () {
+          if (deferred) {
+            deferred.prompt();
+            deferred.userChoice.then(function () { deferred = null; });
+          } else {
+            showHelp();
+          }
         }
       };
     })();
