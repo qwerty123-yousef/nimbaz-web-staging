@@ -168,9 +168,12 @@
             var standalone = (window.matchMedia
                 && window.matchMedia('(display-mode: standalone)').matches)
               || window.navigator.standalone === true;
+            if (standalone) return false;
             var coarse = window.matchMedia
               && window.matchMedia('(pointer: coarse)').matches;
-            return !!coarse && !standalone;
+            // هر گوشی اندروید یا آیفون که هنوز نصب نکرده — حتی اگر مرورگر
+            // نوع اشاره‌گر را درست گزارش نکند.
+            return !!coarse || ios() || android();
           } catch (e) { return false; }
         },
         // نصب روی گوشی: اگر مرورگر پنجره‌ی خودکار داشت از آن استفاده کن،
